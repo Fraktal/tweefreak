@@ -19,7 +19,7 @@ ACCESS_TOKEN_SECRET = credentials.ACCESS_TOKEN_SECRET
 
 class StdOutListener(StreamListener):
   
-    #tweets and Mongo
+    #tweets 
     def on_status(self, status):  
       print status.text
       #simplified and readable date for the tweets
