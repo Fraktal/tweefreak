@@ -3,8 +3,9 @@
 from tweepy.streaming import StreamListener
 from tweepy import OAuthHandler
 from tweepy import Stream
+import pymongo
+from pymongo import Connection 
 import sys
-from sys import argv
 import credentials
 import json
 import jsonpickle
@@ -16,16 +17,35 @@ CONSUMER_SECRET = credentials.CONSUMER_SECRET
 ACCESS_TOKEN = credentials.ACCESS_TOKEN
 ACCESS_TOKEN_SECRET = credentials.ACCESS_TOKEN_SECRET
 
+#Mongo connection
+conn = pymongo.Connection('localhost', 27017)
+db = conn['tweefreakDB']
+
 
 class StdOutListener(StreamListener):
   
-    #tweets 
+    #tweets and Mongo
     def on_status(self, status):  
       print status.text
-      #simplified and readable date for the tweets
-      date = status.created_at.date().strftime("20%y/%m/%d")      
-      #jsonpickle defines complex Python model objects and turns the objects into JSON 
-      data = json.loads(jsonpickle.encode(status))
+      try:
+
+         #simplified and readable date for the tweets
+         date = status.created_at.date().strftime("20%y/%m/%d")      
+
+         #jsonpickle defines complex Python model objects and turns the objects into JSON 
+         data = json.loads(jsonpickle.encode(status))
+       
+         #store the whole tweet 
+         db.tweets.save({"date": date, "tweet": data})
+
+      except ConnectionFailure, e:
+          sys.stderr.write("could not connect to MongoDB: %s" % e)
+          sys.exit(1)     
+                
+
+    #error handling
+    def on_error(self, error):
+        print error 
 
   
      
