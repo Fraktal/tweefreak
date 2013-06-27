@@ -10,6 +10,7 @@ import credentials
 import json
 import jsonpickle
 import re
+import time
 
 #credentials for Twitter OAuth 
 CONSUMER_KEY = credentials.CONSUMER_KEY
@@ -26,20 +27,23 @@ class StdOutListener(StreamListener):
   
     #tweets and Mongo
     def on_status(self, status):  
-      print status.text
+      #print status.text
       try:
 
-         #simplified and readable date for the tweets
-         date = status.created_at.date().strftime("20%y/%m/%d")      
+         #tracking variables
+         date = status.created_at.date().strftime("20%y/%m/%d")  
+         time = status.created_at.time().strftime("%H:%M:%S") #GMT for hour
+         hashtag_tracked = '#%s' %' '.join(sys.argv[1:])
+         #print time   
 
          #jsonpickle defines complex Python model objects and turns the objects into JSON 
          data = json.loads(jsonpickle.encode(status))
        
          #store the whole tweet 
-         db.tweets.save({"date": date, "tweet": data})
+         db.tweets.save({"hashtag": hashtag_tracked, "time": time, "date": date, "tweet": data})
 
       except ConnectionFailure, e:
-          sys.stderr.write("could not connect to MongoDB: %s" % e)
+          sys.stderr.write("connection error: %s" % e)
           sys.exit(1)     
                 
 
@@ -47,7 +51,10 @@ class StdOutListener(StreamListener):
     def on_error(self, error):
         print error 
 
-  
+
+#count the number of tweets in mongo and print it
+total_count = db.tweets.count()
+print "   Total tweets: ", total_count  
      
 if __name__ == '__main__':
     listener = StdOutListener()
