@@ -29,7 +29,7 @@ db = conn['tweefreakDB']
 
 hashtag_key = '#%s' %' '.join(sys.argv[1:])
 
-#group by tweet_text_emoticon from mongo
+#group by hashtag from mongo
 reducer = Code("""
                    function(obj, prev){
                      prev.count++;
@@ -43,15 +43,15 @@ time = [','.join([str(json.dumps(tweet["time"]))
 
 
 #saving time to csv file to be used in graphs outside of tweeefreak
-if not os.path.isdir('data/hashtag_data'):
-        os.makedirs('data/hashtag_data')
+if not os.path.isdir('data/hashtag_csv'):
+        os.makedirs('data/hashtag_csv')
 
 fname = "%s" %' '.join(sys.argv[1:])
 time_data = ' , '.join([str(json.dumps(tweet["time"])) 
                              for tweet in hashtag_data])
 
 fn = "%s.csv" %fname
-f = open(os.path.join(os.getcwd(), 'data', 'hashtag_data', fn), 'w')
+f = open(os.path.join(os.getcwd(), 'data', 'hashtag_csv', fn), 'w')
 f.write(time_data)
 f.close()
 
