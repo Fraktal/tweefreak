@@ -26,7 +26,7 @@ from datetime import datetime
 conn = pymongo.Connection('localhost', 27017)
 db = conn['tweefreakDB']
 
-#hashtag_key = '#%s' %' '.join(sys.argv[1:])
+hashtag_key = '#%s' %' '.join(sys.argv[1:])
 
 #group by tweet_text_emoticon from mongo
 reducer = Code("""
@@ -34,7 +34,7 @@ reducer = Code("""
                      prev.count++;
                    }
                    """)
-hashtag_data = db.tweets.group(key={"hashtag":1, "time":1}, condition={}, initial={"count": 0}, reduce=reducer)
+hashtag_data = db.tweets.group(key={"hashtag": hashtag_key , "time":1}, condition={}, initial={"count": 0}, reduce=reducer)
 
 time = ','.join([str(json.dumps(tweet["time"])) 
                              for tweet in hashtag_data])
