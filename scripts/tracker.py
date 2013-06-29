@@ -40,7 +40,7 @@ class StdOutListener(StreamListener):
          data = json.loads(jsonpickle.encode(status))
        
     
-         db.tweets.save({"hashtag": hashtag_key, "time": time, "date": date, "tweet": data})
+         db.tweets.save({"hashtag": hashtag_key, "date": date, "time": time, "text": status.text, "tweet": data})
             
  
 
