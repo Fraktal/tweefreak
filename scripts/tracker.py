@@ -1,70 +1,66 @@
 #! /usr/bin/python
 
-import sys, time
-import webbrowser 
+from tweepy.streaming import StreamListener
+from tweepy import OAuthHandler
+from tweepy import Stream
 import pymongo
-import os
-from pymongo import Connection  
-from bson import BSON
-from bson.json_util import dumps
-from bson import Code
-from bson.son import SON
+from pymongo import Connection 
+import sys
+import credentials
 import json
-import cPickle as pickle
-import simplejson
-from operator import itemgetter
-import operator, time, string
-import matplotlib.pyplot as plt
-import matplotlib.patches as patches
-import matplotlib.path as path
-import numpy as np
-from datetime import datetime
-import random
+import jsonpickle
+import logging
+import re
 
+#credentials for Twitter OAuth 
+CONSUMER_KEY = credentials.CONSUMER_KEY
+CONSUMER_SECRET = credentials.CONSUMER_SECRET
+ACCESS_TOKEN = credentials.ACCESS_TOKEN
+ACCESS_TOKEN_SECRET = credentials.ACCESS_TOKEN_SECRET
 
-
-#mongo connection
+#Mongo connection
 conn = pymongo.Connection('localhost', 27017)
-db = conn['tweefreakDB']
+db = conn['tweetDB']
 
 hashtag_key = '#%s' %' '.join(sys.argv[1:])
 
-#group by tweet_text_emoticon from mongo
-reducer = Code("""
-                   function(obj, prev){
-                     prev.count++;
-                   }
-                   """)
-hashtag_data = db.tweets.group(key={"hashtag": hashtag_key , "time":1}, condition={}, 
-                                     initial={"count": 0}, reduce=reducer)
 
-time = [','.join([str(json.dumps(tweet["time"])) 
-                             for tweet in hashtag_data])]
+class StdOutListener(StreamListener):
+  
+    #tweets and Mongo
+    def on_status(self, status):  
+      print status
+      try:
 
+         #simplified and readable date for the tweets
+         date = status.created_at.date().strftime("20%y/%m/%d")  
+         time = status.created_at.time().strftime("%H:%M:%S")    
 
-#saving time to csv file to be used in graphs outside of tweeefreak
-if not os.path.isdir('data/hashtag_data'):
-        os.makedirs('data/hashtag_data')
+         #jsonpickle defines complex Python model objects and turns the objects into JSON 
+         data = json.loads(jsonpickle.encode(status))
+       
+    
+         db.tweets.save({"hashtag": hashtag_key, "time": time, "date": date, "tweet": data})
+            
+ 
 
-fname = "%s" %' '.join(sys.argv[1:])
-time_data = ' , '.join([str(json.dumps(tweet["time"])) 
-                             for tweet in hashtag_data])
+      except ConnectionFailure, error:
+          sys.stderr.write("could not connect to MongoDB: %s" % error)
+          sys.exit(1)     
+                
 
-fn = "%s.csv" %fname
-f = open(os.path.join(os.getcwd(), 'data', 'hashtag_data', fn), 'w')
-f.write(time_data)
-f.close()
-
-
-#plotting the basic spike train
-x = [time]
-y = [i+random.gauss(0,1) for i,_ in enumerate(x)]
-
-plt.plot(x,y)
-# beautify the x-labels
-plt.gcf().autofmt_xdate()
-
-plt.show()
+    #error handling
+    def on_error(self, error):
+        print error 
 
 
-#print time
+#count the number of tweets in mongo and print it
+total_count = db.tweets.count()
+
+if __name__ == '__main__':
+    listener = StdOutListener()
+    auth = OAuthHandler(CONSUMER_KEY, CONSUMER_SECRET)
+    auth.set_access_token(ACCESS_TOKEN,ACCESS_TOKEN_SECRET )
+    print >> sys.stderr,"retrieving data for %s" %hashtag_key
+    stream = Stream(auth, listener)    
+    stream.filter(follow = None, track=[hashtag_key])
