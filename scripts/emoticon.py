@@ -22,12 +22,14 @@ from datetime import datetime
 import random
 
 
+#hashtag being tracked
+hashtag_key = '#%s' %' '.join(sys.argv[1:])
+
 
 #mongo connection
 conn = pymongo.Connection('localhost', 27017)
 db = conn['tweefreakDB']
 
-hashtag_key = '#%s' %' '.join(sys.argv[1:])
 
 #group by hashtag from mongo
 reducer = Code("""
@@ -35,11 +37,13 @@ reducer = Code("""
                      prev.count++;
                    }
                    """)
-hashtag_data = db.tweets.group(key={"hashtag": hashtag_key , "text":1}, condition={}, 
+hashtag_data = db.tweets.group(key={"hashtag": hashtag_key, "text":1}, condition={}, 
 	                                 initial={"count": 0}, reduce=reducer)
 
-text = [','.join([str(json.dumps(tweet["text"])) 
-                             for tweet in hashtag_data])]
+
+#Pulling out text data from hashtag queried 
+text = ' '.join([str(json.dumps(tweet["text"])) 
+                             for tweet in hashtag_data])
  
 print text
 

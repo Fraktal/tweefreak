@@ -55,7 +55,9 @@ f = open(os.path.join(os.getcwd(), 'data', 'hashtag_csv', fn), 'w')
 f.write(time_data)
 f.close()
 
+print time_data
 
+"""
 #plotting the basic spike train
 x = [time]
 y = [i+random.gauss(0,1) for i,_ in enumerate(x)]
@@ -68,3 +70,4 @@ plt.show()
 
 
 #print time
+"""
