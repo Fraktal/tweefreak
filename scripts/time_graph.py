@@ -21,6 +21,7 @@ import numpy as np
 from datetime import datetime
 import random
 
+
 #hashtag being tracked
 hashtag_key = '#%s' %' '.join(sys.argv[1:])
 
@@ -39,16 +40,15 @@ hashtag_data = db.tweets.group(key={"hashtag": hashtag_key , "time":1}, conditio
 
 
 #Pulling out time data from hashtag queried 
-time = [','.join([str(json.dumps(tweet["time"])) 
-                             for tweet in hashtag_data])]
+time = ','.join([str(json.dumps(tweet["time"])) 
+                             for tweet in hashtag_data])
 
 
 #saving time to csv file to be used in graphs outside of tweeefreak
 if not os.path.isdir('data/hashtag_csv'):
         os.makedirs('data/hashtag_csv')
 
-fname = "%s" %' '.join(sys.argv[1:])
-fn = "%s.csv" %fname
+fn = "%s.csv" %hashtag_key
 f = open(os.path.join(os.getcwd(), 'data', 'hashtag_csv', fn), 'w')
 f.write(time)
 f.close()
