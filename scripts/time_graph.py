@@ -21,15 +21,14 @@ import numpy as np
 from datetime import datetime
 import random
 
+#hashtag being tracked
+hashtag_key = '#%s' %' '.join(sys.argv[1:])
 
-
-#mongo connection
+#Mongo connection
 conn = pymongo.Connection('localhost', 27017)
 db = conn['tweefreakDB']
 
-hashtag_key = '#%s' %' '.join(sys.argv[1:])
-
-#group by hashtag from mongo
+#group by hashtag from Mongo
 reducer = Code("""
                    function(obj, prev){
                      prev.count++;
@@ -38,6 +37,8 @@ reducer = Code("""
 hashtag_data = db.tweets.group(key={"hashtag": hashtag_key , "time":1}, condition={}, 
 	                                 initial={"count": 0}, reduce=reducer)
 
+
+#Pulling out time data from hashtag queried 
 time = [','.join([str(json.dumps(tweet["time"])) 
                              for tweet in hashtag_data])]
 
@@ -47,15 +48,12 @@ if not os.path.isdir('data/hashtag_csv'):
         os.makedirs('data/hashtag_csv')
 
 fname = "%s" %' '.join(sys.argv[1:])
-time_data = ' , '.join([str(json.dumps(tweet["time"])) 
-                             for tweet in hashtag_data])
-
 fn = "%s.csv" %fname
 f = open(os.path.join(os.getcwd(), 'data', 'hashtag_csv', fn), 'w')
-f.write(time_data)
+f.write(time)
 f.close()
 
-print time_data
+print time
 
 """
 #plotting the basic spike train
