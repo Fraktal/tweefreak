@@ -1,5 +1,5 @@
 #! /usr/bin/python 
- 
+  
 import sys, time
 import webbrowser 
 import pymongo
@@ -19,7 +19,7 @@ import matplotlib.patches as patches
 import matplotlib.path as path
 import numpy as np
 from datetime import datetime
-import random
+
 
 
 #hashtag being tracked

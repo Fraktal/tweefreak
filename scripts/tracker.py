@@ -1,4 +1,4 @@
-#! /usr/bin/python
+#! /usr/bin/python 
 
 from tweepy.streaming import StreamListener
 from tweepy import OAuthHandler
@@ -23,7 +23,7 @@ hashtag_key = '#%s' %' '.join(sys.argv[1:])
 
 #Mongo connection
 conn = pymongo.Connection('localhost', 27017)
-db = conn['tweetDB']
+db = conn['tweefreakDB']
 
 
 class StdOutListener(StreamListener):
@@ -54,7 +54,7 @@ class StdOutListener(StreamListener):
 
 #count the number of tweets in Mongo and print it
 total_count = db.tweets.count()
-
+print total_count
 
 if __name__ == '__main__':
     listener = StdOutListener()

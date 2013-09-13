@@ -1,5 +1,5 @@
 #! /usr/bin/python 
- 
+  
 import sys, time
 import webbrowser 
 import pymongo
@@ -40,7 +40,7 @@ hashtag_data = db.tweets.group(key={"hashtag": hashtag_key , "time":1}, conditio
 
 
 #Pulling out time data from hashtag queried 
-time = ','.join([str(json.dumps(tweet["time"])) 
+time = ' '.join([str(json.dumps(tweet["time"])) 
                              for tweet in hashtag_data])
 
 
