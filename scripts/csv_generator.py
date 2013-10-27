@@ -41,8 +41,8 @@ db = conn['tweefreakDB']
 
 
 for r in db.tweets.find(fields=['date', 'time']): #not saving data due to unicode!!
-        date = date_val[r['date']].encode('utf-8')
-     	time = time_val[r['time']].encode('utf-8')
+        date = date_val[(r['date']).encode('ascii', 'replace')] #error starts here!!!
+     	time = time_val[r['time']]
 
 
 #saving time to csv file to be used in graphs outside of tweefreak

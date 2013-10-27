@@ -38,7 +38,7 @@ class StdOutListener(StreamListener):
          time = status.created_at.time().strftime("%H:%M:%S")#GMT time stored in Mongo    
 
          #jsonpickle defines complex Python model objects and turns the objects into JSON 
-         data = json.loads(jsonpickle.encode(status))
+         data = jsonpickle.encode(status)
           
          #storing tweet data in Mongo  
          db.tweets.save({"hashtag": hashtag_key, "date": date, "time": time, "text": status.text, "tweet": data})
